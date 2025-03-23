@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Login</title>
+</head>
+<body>
+<div class = "w-full min-h-screen bg-zinc-900 p-5">
+    <div class  = "flex justify-end">
+        <a href = "/logout" class = "text-white p-2 bg-red-600 rounded-full  "> Logout </a>
+    </div>
+    <div class = "text-white">
+        <h2 class = "text-3xl text-white mb-8">Profile</h2>
+        <h2 class = "text-2xl mb-3"> Hello, <%= user.name %></h2>
+        <h5 class = "text-xl">You can post from here@!</h5>
+    </div>
+    <form action = "/post" method = "post" class = "mt-4 text-white flex flex-col py-4">
+        <textarea placeholder="What's on your mind?" name = "content" class = "rounded p-4 mb-4 w-70 text-white "></textarea>
+        <input class="p-2 bg-blue-500 rounded w-44" type = "submit" value = "Submit" />
+</form>
+<!-- posts -->
+ <div class=" text-white mt-10">
+    <h2 class = "text-2xl ">Your posts</h2>
+    <%  user.posts.forEach(function (post) { %>
+        <div class = "mt-4 border-2 p-2 rounded bg-zinc-900 border-zinc-800 w-100">
+       <h2  class = "text-blue-500 mb-3"> <%= user.name %></h2>
+       <p class = "tracking-tight"><%= post.content %></p>
+       <div class = "flex gap-3 mt-4">
+        <a class = "text-red-400 pointer">Like</a>
+        <a class = "text-grey-500">Edit</a>
+       </div>
+    </div>
+     <%  })  %>    
+ </div>
+</div>
+</body>
+</html></html>
