@@ -7,6 +7,10 @@ const userSchema = Schema({
   age: Number,
   email: String,
   password: String,
+  profilePic: {
+    type: String,
+    default: "default.jpg",
+  },
   posts: [
     {
       type: Schema.Types.ObjectId,

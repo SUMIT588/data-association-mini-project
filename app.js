@@ -6,11 +6,14 @@ const bcrypt = require("bcrypt");
 const userModel = require("./models/user.js");
 const postModel = require("./models/post.js");
 const jwt = require("jsonwebtoken");
+const path = require("path");
+const upload = require("./config/multerConfig.js");
 
 // middlewares
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
@@ -19,6 +22,37 @@ app.get("/", (req, res) => {
 
 app.get("/login", (req, res) => {
   res.render("login");
+});
+
+app.get("/profilePic", isLoggedIn, (req, res) => {
+  res.render("profilePic", { user: req.user });
+});
+app.post(
+  "/profilePic",
+  isLoggedIn,
+  upload.single("profile"),
+  async (req, res) => {
+    const user = await userModel.findOne({ email: req.user.email });
+    console.log(req.file, "user");
+    user.profilePic = req.file.filename;
+    await user.save();
+    res.redirect("/profile");
+  }
+);
+
+app.get("/edit/:id", async (req, res) => {
+  const id = req.params.id;
+  const post = await postModel.findOne({ _id: id });
+  res.render("edit", { post });
+});
+
+app.post("/edit/:id", async (req, res) => {
+  const post_id = await req.params.id;
+  const post = await postModel.findOneAndUpdate(
+    { _id: post_id },
+    { content: req.body.content }
+  );
+  res.redirect("/profile");
 });
 
 app.post("/login", async (req, res) => {
@@ -70,7 +104,6 @@ app.get("/profile", isLoggedIn, async (req, res) => {
   const userInfo = await userModel
     .findOne({ email: req.user.email })
     .populate("posts");
-  console.log(userInfo, "postssss");
   res.render("profile", { user: userInfo });
 });
 
@@ -84,6 +117,22 @@ app.post("/post", isLoggedIn, async (req, res) => {
   });
   user.posts.push(post._id);
   await user.save();
+  res.redirect("/profile");
+});
+
+// likes
+app.get("/likes/:id", isLoggedIn, async (req, res) => {
+  let post = await postModel.findOne({ _id: req.params.id }).populate("user");
+  let userId = req.user.userId;
+  let index = post.likes.indexOf(userId);
+  console.log(index, "index");
+  // console.log(req.user, "users");
+  if (index === -1) {
+    post.likes.push(userId);
+  } else {
+    post.likes.splice(index, 1);
+  }
+  await post.save();
   res.redirect("/profile");
 });
 
